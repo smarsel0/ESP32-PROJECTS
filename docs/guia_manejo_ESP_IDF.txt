@@ -4,16 +4,17 @@
 Esta guía resume los conceptos clave para crear, abrir y mantener proyectos
 usando el SDK oficial de Espressif (ESP-IDF) tras los problemas detectados.
 
-1. CREACIÓN DE UN NUEVO PROYECTO
+1. CREACIÓN DE UN NUEVO PROYECTO (Campos exactos)
 -------------------------------------------------------------------------------
 - Comando: Cmd + Shift + P -> "ESP-IDF: New Project".
-- Configuración Crítica:
-    * Project Name: Sin espacios ni caracteres especiales.
-    * Directory: FUERA de la carpeta de instalacion del SDK (esp-idf).
+- Configuración Crítica en la ventana:
+    * Project Name: Sin espacios ni caracteres especiales (ej. parpadeo_LED).
+    * Directory: FUERA de la carpeta de instalacion del SDK (esp-idf). Usa una tuya.
     * Target: Para tu placa, siempre elegir 'esp32'.
-    * Board: Elegir 'Custom board' para evitar conflictos con hardware extra.
-    * Port: Seleccionar manualmente el puerto (/dev/cu.usbserial-xxx en Mac).
-- Plantilla: Usa siempre "Choose Template" -> ESP-IDF -> get-started -> blink
+    * Board: Elegir 'Custom board' para evitar conflictos con hardware extra de placas oficiales.
+    * Port: Seleccionar manualmente el puerto (/dev/cu.usbserial-xxx en Mac). NO usar la opción 'detect' porque suele fallar al confundirse con periféricos Bluetooth.
+    * Component directory: Dejar TOTALMENTE VACÍO (solo se usa en proyectos hiper-avanzados).
+- Plantilla: Al darle a Create, usa siempre "Choose Template" -> ESP-IDF -> get-started -> blink
   para asegurar que la estructura de carpetas es correcta desde el inicio.
 
 2. MOVER O ABRIR PROYECTOS ANTIGUOS (EL ERROR DE LAS RUTAS)
@@ -71,4 +72,24 @@ Si el código compila (Build OK) pero VS Code subraya los #include en rojo:
 - Flash: 4MB (N4).
 - LED Interno: Generalmente en el GPIO 2.
 - Protocolo I2C (Pantalla): Por defecto SDA=Pin 21, SCL=Pin 22.
+
+8. ALERTAS Y TRAMPAS COMUNES EN VS CODE (DUDAS RESUELTAS)
+-------------------------------------------------------------------------------
+- ALERTA: "No standard ESP-IDF project was found in this workspace..."
+  * Por qué sale: Las extensiones pesadas de VS Code se "duermen" para no 
+    gastar RAM. Al abrir una carpeta vacía, la extensión no detecta archivos 
+    ESP-IDF y avisa de que está inactiva.
+  * Solución: Hacer clic en el botón azul "Activate Anyway". Esto despierta 
+    la extensión para que puedas usar el comando "New Project".
+
+- LA TRAMPA DEL COMPILADOR: Paleta superior que pide "Seleccionar un kit..." 
+  mostrando opciones como Clang o GCC de Apple.
+  * Por qué sale: La extensión base CMake de VS Code intenta ser amable y te 
+    ofrece los compiladores instalados en tu Mac.
+  * Solución: Pulsar "Esc" o hacer clic en "[Indeterminado] Sin especificar". 
+    NUNCA seleccionar un compilador de Mac.
+  * El Concepto Senior: Esto es "Compilación Cruzada" (Cross-Compilation). 
+    No estamos creando un programa para Mac (arquitectura x86_64/ARM), sino 
+    un firmware para el ESP32. La extensión ESP-IDF ya gestiona en la sombra 
+    su propio compilador especial, por lo que no debemos pisarlo.
 ===============================================================================
