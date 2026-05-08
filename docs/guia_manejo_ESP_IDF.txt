@@ -1,0 +1,74 @@
+===============================================================================
+       GUÍA DE SUPERVIVENCIA: ESP-IDF EN VS CODE (PARA INGENIERÍA)
+===============================================================================
+Esta guía resume los conceptos clave para crear, abrir y mantener proyectos
+usando el SDK oficial de Espressif (ESP-IDF) tras los problemas detectados.
+
+1. CREACIÓN DE UN NUEVO PROYECTO
+-------------------------------------------------------------------------------
+- Comando: Cmd + Shift + P -> "ESP-IDF: New Project".
+- Configuración Crítica:
+    * Project Name: Sin espacios ni caracteres especiales.
+    * Directory: FUERA de la carpeta de instalacion del SDK (esp-idf).
+    * Target: Para tu placa, siempre elegir 'esp32'.
+    * Board: Elegir 'Custom board' para evitar conflictos con hardware extra.
+    * Port: Seleccionar manualmente el puerto (/dev/cu.usbserial-xxx en Mac).
+- Plantilla: Usa siempre "Choose Template" -> ESP-IDF -> get-started -> blink
+  para asegurar que la estructura de carpetas es correcta desde el inicio.
+
+2. MOVER O ABRIR PROYECTOS ANTIGUOS (EL ERROR DE LAS RUTAS)
+-------------------------------------------------------------------------------
+PROBLEMA: El ESP-IDF usa rutas ABSOLUTAS. Si mueves la carpeta de sitio, la 
+carpeta 'build' seguirá buscando los archivos en la ubicación antigua.
+
+SOLUCIÓN (Full Clean):
+1. Cmd + Shift + P -> "ESP-IDF: Full Clean" (Borra la caché corrupta).
+2. Haz un nuevo "Build" (icono del cilindro/tuerca). Esto regenerará las rutas.
+3. Si el error persiste, borra manualmente la carpeta 'build' del proyecto.
+
+3. SOLUCIÓN A LAS "LÍNEAS ROJAS" (INTELLISENSE)
+-------------------------------------------------------------------------------
+Si el código compila (Build OK) pero VS Code subraya los #include en rojo:
+1. Cmd + Shift + P -> "ESP-IDF: Add vscode configuration folder".
+2. Esto crea la carpeta '.vscode' con los punteros a las librerías del SDK.
+3. Si no se quitan: Cmd + Shift + P -> "Developer: Reload Window".
+
+4. FLUJO DE TRABAJO EN LA BARRA AZUL (ICONOS)
+-------------------------------------------------------------------------------
+- Enchufe: Seleccionar puerto serie.
+- Microchip: Seleccionar Target (esp32).
+- Engranaje (SDK Configuration): Equivale al 'menuconfig'. Para configurar 
+  pines (GPIO), velocidades de reloj o Wi-Fi sin tocar el código.
+- Cilindro/Tuerca (Build): Solo compila (no necesita placa conectada).
+- Rayo (Flash): Sube el binario a la placa (necesita placa conectada).
+- Pantalla (Monitor): Abre la terminal para ver los 'printf' y 'logs'.
+- LLAMA (Fuego): Hace los tres pasos anteriores seguidos.
+
+5. ARQUITECTURA DEL PROYECTO
+-------------------------------------------------------------------------------
+- main/: Carpeta donde va tu código fuente (.c).
+- main/CMakeLists.txt: Archivo que dice qué archivos .c compilar.
+- CMakeLists.txt (raíz): Configuración global del proyecto.
+- sdkconfig: Archivo generado por el sistema con toda tu configuración. 
+  NUNCA editarlo a mano; usa el menú de configuración (engranaje).
+
+6. CONCEPTOS DE PROGRAMACIÓN "SENIOR" (ESP-IDF)
+-------------------------------------------------------------------------------
+- esp_err_t: Tipo de dato que devuelven casi todas las funciones del SDK. 
+  Indica si la operación fue exitosa (ESP_OK) o falló.
+- ESP_ERROR_CHECK(funcion()): Macro obligatoria en producción. Si la función
+  falla, el sistema se reinicia y te dice exactamente dónde falló.
+- FreeRTOS: El ESP-IDF no usa un 'loop()' infinito simple. Usa tareas.
+  * vTaskDelay(1000 / portTICK_PERIOD_MS): Forma correcta de esperar 1 seg.
+- Logging (Sustituto de printf):
+  * #include "esp_log.h"
+  * ESP_LOGI("TAG", "Mensaje"); // Para información (Verde)
+  * ESP_LOGE("TAG", "Mensaje"); // Para errores (Rojo)
+
+7. CONSIDERACIONES DE HARDWARE (TU DEVKIT)
+-------------------------------------------------------------------------------
+- SoM: ESP32-WROOM-32D (Target: esp32).
+- Flash: 4MB (N4).
+- LED Interno: Generalmente en el GPIO 2.
+- Protocolo I2C (Pantalla): Por defecto SDA=Pin 21, SCL=Pin 22.
+===============================================================================
